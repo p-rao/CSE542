@@ -225,9 +225,6 @@ public class Student extends javax.swing.JFrame {
             String password = new String(text2.getPassword());
             NewUser newuser = new NewUser(username, email, password);
             this.addValuesToQueue(newuser);
-            RemoveButton.setEnabled(true);
-            PauseButton.setEnabled(true);
-            UnpauseButton.setEnabled(false);
         }
     }//GEN-LAST:event_AddButtonActionPerformed
 
@@ -254,6 +251,9 @@ public class Student extends javax.swing.JFrame {
                         Users.remove(i);
                         this.removeUsersFromQueue(email);
                         flag = true;
+                        this.RemoveButton.setEnabled(false);
+                        this.PauseButton.setEnabled(false);
+                        this.UnpauseButton.setEnabled(false);
                     }
                 }
             }
@@ -348,25 +348,18 @@ public class Student extends javax.swing.JFrame {
 
     private void QueueTableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_QueueTableMouseClicked
         // TODO add your handling code here:
-        int row = jTable1.rowAtPoint(evt.getPoint());
-        int col = jTable1.columnAtPoint(evt.getPoint());
-        if (row >= 0 && col >= 0) {
-            DefaultTableModel tableModel = (DefaultTableModel) QueueTable.getModel();
-            for (int i = 0; i < tableModel.getRowCount(); i++) {
-                if (i == row) {
-                    RemoveButton.setEnabled(true);
-                    String isPaused = (String)tableModel.getValueAt(row, 2);
-                    boolean status = this.encodeStatus(isPaused);
-                    if (status){
-                        this.PauseButton.setEnabled(false);
-                        this.UnpauseButton.setEnabled(true);
-                    }
-                    else{
-                        this.PauseButton.setEnabled(true);
-                        this.UnpauseButton.setEnabled(false);
-                    }
-                }
-            }
+        JTable target = (JTable) evt.getSource();
+        int row = target.getSelectedRow();
+        String isPaused = (String)target.getValueAt(row, 2);
+        RemoveButton.setEnabled(true);
+        boolean status = this.encodeStatus(isPaused);
+        if (status){
+            this.PauseButton.setEnabled(false);
+            this.UnpauseButton.setEnabled(true);
+        }
+        else{
+            this.PauseButton.setEnabled(true);
+            this.UnpauseButton.setEnabled(false);
         }
     }//GEN-LAST:event_QueueTableMouseClicked
 
