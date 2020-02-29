@@ -16,7 +16,8 @@ public class Proj1 {
      */
     public static void main(String[] args) {
         // TODO code application logic here
-        new my.login.Login().setVisible(true);
+//        new my.login.Login().setVisible(true);
+        new my.student.Student().setVisible(true);
     }
     
 }

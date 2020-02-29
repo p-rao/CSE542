@@ -8,6 +8,7 @@ package my.student;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.util.LinkedList;
+import java.util.Random;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -16,6 +17,8 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 import newuser.NewUser;
+import javax.swing.JViewport;
+import javax.swing.JScrollPane;
 
 /**
  *
@@ -24,12 +27,11 @@ import newuser.NewUser;
 public class Student extends javax.swing.JFrame {
 
     private static LinkedList<NewUser> Users = new LinkedList<NewUser>();
-    
-    private static String CurrentUser = "";
     /**
      * Creates new form Student
      */
     public Student() {
+        // intiliazes the components required to populate the GUI
         initComponents();
         NewUser nu1 = new NewUser("Priya Rao","prao4@buffalo.edu","dummy123");
         NewUser nu2 = new NewUser("Jie Lyu","jielv@buffalo.edu","dummy123");
@@ -41,13 +43,25 @@ public class Student extends javax.swing.JFrame {
         Users.add(nu3);
         Users.add(nu4);
         Users.add(nu5);
+        Random rand = new Random();
+        int rand_int1 = rand.nextInt(4);
+        if (rand_int1 == 0){
+            this.jLabel1.setVisible(true);
+        }
+        else{
+            this.jLabel1.setVisible(false);
+        }
         RemoveButton.setEnabled(false);
         PauseButton.setEnabled(false);
         UnpauseButton.setEnabled(false);
         DefaultTableModel model = (DefaultTableModel) QueueTable.getModel();
-        for (int i = 0; i<Users.size();i++){
-            model.addRow(new Object[]{Users.get(i).getName(),Users.get(i).getEmail(), this.decodeStatus(Users.get(i).getStatus())});
-        }        
+        for (int i = 0; i<rand_int1;i++){
+            model.addRow(new Object[]{Users.get(i).getName(), Helper.decodeStatus(Users.get(i).getStatus())});
+        }       
+        int length = Users.size();
+        for(int i=length-1;i>=rand_int1;i--){
+            Users.remove(i);
+        }
     }
        
     /**
@@ -67,6 +81,7 @@ public class Student extends javax.swing.JFrame {
         UnpauseButton = new javax.swing.JButton();
         jScrollPane2 = new javax.swing.JScrollPane();
         QueueTable = new javax.swing.JTable();
+        jLabel1 = new javax.swing.JLabel();
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -116,14 +131,14 @@ public class Student extends javax.swing.JFrame {
 
             },
             new String [] {
-                "User", "Email", "Status"
+                "User", "Status"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.String.class, java.lang.String.class, java.lang.String.class
+                java.lang.String.class, java.lang.String.class
             };
             boolean[] canEdit = new boolean [] {
-                false, false, false
+                false, false
             };
 
             public Class getColumnClass(int columnIndex) {
@@ -142,20 +157,27 @@ public class Student extends javax.swing.JFrame {
         jScrollPane2.setViewportView(QueueTable);
         QueueTable.getColumnModel().getSelectionModel().setSelectionMode(javax.swing.ListSelectionModel.SINGLE_INTERVAL_SELECTION);
 
+        jLabel1.setText("The queue is currently empty");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap(37, Short.MAX_VALUE)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 318, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 151, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(UnpauseButton)
-                    .addComponent(AddButton)
-                    .addComponent(RemoveButton)
-                    .addComponent(PauseButton))
-                .addContainerGap(36, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jLabel1)
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 318, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 151, Short.MAX_VALUE)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(UnpauseButton)
+                            .addComponent(AddButton)
+                            .addComponent(RemoveButton)
+                            .addComponent(PauseButton))
+                        .addContainerGap(36, Short.MAX_VALUE))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -174,42 +196,45 @@ public class Student extends javax.swing.JFrame {
                         .addGap(40, 40, 40)
                         .addComponent(UnpauseButton)
                         .addGap(0, 0, Short.MAX_VALUE)))
-                .addContainerGap(88, Short.MAX_VALUE))
+                .addGap(18, 18, 18)
+                .addComponent(jLabel1)
+                .addContainerGap(50, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    // adds values to the table model
     private void addValuesToQueue(NewUser user){
         Users.add(user);
         DefaultTableModel model = (DefaultTableModel) QueueTable.getModel();
-        model.addRow(new Object[]{user.getName(), user.getEmail(), this.decodeStatus(user.getStatus())});
+        model.addRow(new Object[]{user.getName(), Helper.decodeStatus(user.getStatus())});
     }
     
-    private void removeUsersFromQueue(String email){
+    // removes users from the queue while maintaining the positions of the paused entries
+    private void removeUsersFromQueue(int row){
         DefaultTableModel tableModel = (DefaultTableModel) QueueTable.getModel();
+        int rowNumber = tableModel.getRowCount();
         for (int i = 0; i < tableModel.getRowCount(); i++) {
-            if (((String)tableModel.getValueAt(i, 1)).equals(email)) {
+            if (row == i) {
                 tableModel.removeRow(i);
+                Users.remove(i);
+
+                for(int j=i; j<rowNumber-1; j++){
+                    boolean state = Helper.encodeStatus((String)tableModel.getValueAt(j, 1));
+                    if(!state) {
+                        tableModel.insertRow(i, new Object[]{(String)tableModel.getValueAt(j, 0),(String)tableModel.getValueAt(j, 1)});
+                        tableModel.removeRow(j+1);
+                        Users.add(i, Users.get(j));
+                        Users.remove(j+1);
+                        break;
+                    }
+                }
             }
         }
-    }
+    }    
     
-    private String decodeStatus(boolean status){
-        if (status)
-            return "Paused";
-        else
-            return "Not Paused";
-    }
-    
-    private boolean encodeStatus(String status){
-        if (status.equals("Paused"))
-            return true;
-        else
-            return false;
-    }
-    
-    
+    // Add button - allows a user to be added to the queue
     private void AddButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AddButtonActionPerformed
         // TODO add your handling code here:
         this.setVisible(true);
@@ -219,140 +244,88 @@ public class Student extends javax.swing.JFrame {
         Object[] msg = {"Name:", text0, "Email:", text1, "Password:", text2};
         
         int result = JOptionPane.showConfirmDialog(null, msg, "Adding New User", JOptionPane.OK_CANCEL_OPTION);
-        if (result == JOptionPane.OK_OPTION) {
-            String username = text0.getText();
-            String email = text1.getText();
-            String password = new String(text2.getPassword());
+        String username = text0.getText();
+        String email = text1.getText();
+        String password = new String(text2.getPassword());
+        if ((result == JOptionPane.OK_OPTION) && !(username.equals("")) && !(email.equals(""))) {
             NewUser newuser = new NewUser(username, email, password);
             this.addValuesToQueue(newuser);
         }
+        this.jLabel1.setVisible(false);
     }//GEN-LAST:event_AddButtonActionPerformed
 
+    // Remove button - allows a user to be removed from the queue
     private void RemoveButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_RemoveButtonActionPerformed
         // TODO add your handling code here:
         int row = QueueTable.getSelectedRow();
-        String email = "";
-        DefaultTableModel tableModel = (DefaultTableModel) QueueTable.getModel();
-        for (int i = 0; i < tableModel.getRowCount(); i++) {
-            if (i == row) {
-                email = (String)tableModel.getValueAt(i, 1);
-            }
-        }
+        String email = Users.get(row).getEmail();
         JPasswordField text0 = new JPasswordField(8);
-        Object[] msg = {"Password:", text0};
-        
-        int result = JOptionPane.showConfirmDialog(null, msg , "Confirm removal by entering password", JOptionPane.OK_CANCEL_OPTION);
-        boolean flag = false;
+        Object[] msg = {String.format("Confirm removal by entering password for " + email), text0};
+        int result = JOptionPane.showConfirmDialog(null, msg , "Remove User?", JOptionPane.OK_CANCEL_OPTION);
         if (result == JOptionPane.OK_OPTION) {
-            for (int i = 0; i < Users.size();i++)
-            {
-                if (Users.get(i).getEmail() == email){
-                    if (Users.get(i).getPassword().toString().equals(new String(text0.getPassword()))){
-                        Users.remove(i);
-                        this.removeUsersFromQueue(email);
-                        flag = true;
-                        this.RemoveButton.setEnabled(false);
-                        this.PauseButton.setEnabled(false);
-                        this.UnpauseButton.setEnabled(false);
-                    }
-                }
+                Users.remove(row);
+                this.removeUsersFromQueue(row);
+                this.RemoveButton.setEnabled(false);
+                this.PauseButton.setEnabled(false);
+                this.UnpauseButton.setEnabled(false);
             }
+        if (QueueTable.getRowCount() == 0){
+            this.jLabel1.setVisible(true);
         }
     }//GEN-LAST:event_RemoveButtonActionPerformed
 
+    // Pause button - allows a user to be paused in the queue
     private void PauseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_PauseButtonActionPerformed
         // TODO add your handling code here:
         int row = QueueTable.getSelectedRow();
-        String status = "";
-        String email = "";
         DefaultTableModel tableModel = (DefaultTableModel) QueueTable.getModel();
-        for (int i = 0; i < tableModel.getRowCount(); i++) {
-            if (i == row) {
-                status = (String)tableModel.getValueAt(i, 2);
-                email = (String)tableModel.getValueAt(i, 1);
-            }
-        }
-        
+        String status = (String)tableModel.getValueAt(row, 1);
+        String email = Users.get(row).getEmail();
         JPasswordField text0 = new JPasswordField(8);
-        Object[] msg = {"Password:", text0};
-        
-        int result = JOptionPane.showConfirmDialog(null, msg , "Confirm pause by entering password", JOptionPane.OK_CANCEL_OPTION);
-        boolean flag = false;
+        Object[] msg = {String.format("Confirm removal by entering password for " + email), text0};
+        int result = JOptionPane.showConfirmDialog(null, msg , "Pause User?", JOptionPane.OK_CANCEL_OPTION);
         if (result == JOptionPane.OK_OPTION) {
-            for (int i = 0; i < Users.size();i++)
+            boolean val = Helper.encodeStatus(status);
+            if(!val)
             {
-                if (Users.get(i).getEmail() == email){
-                    if (Users.get(i).getPassword().toString().equals(new String(text0.getPassword()))){
-                        boolean val = this.encodeStatus(status);
-                        if(!val)
-                        {
-                            tableModel.setValueAt(this.decodeStatus(!val), row, 2);
-                            for (int j = 0; j< Users.size(); j++){
-                                if (Users.get(j).getEmail().equals(email)){
-                                    Users.get(j).setStatus();
-                                }
-                            }
-                        }
-                        flag = true;
-                        this.UnpauseButton.setEnabled(true);
-                        this.PauseButton.setEnabled(false);
-                        break;
-                    }
-                }
+                tableModel.setValueAt(Helper.decodeStatus(!val), row, 1);
+                        Users.get(row).setStatus();
             }
-        }        
+            this.UnpauseButton.setEnabled(true);
+            this.PauseButton.setEnabled(false);
+        }   
     }//GEN-LAST:event_PauseButtonActionPerformed
 
+    // Unpause button - allows a user to be unpaused in the queue
     private void UnpauseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_UnpauseButtonActionPerformed
         // TODO add your handling code here:
         int row = QueueTable.getSelectedRow();
-        String status = "";
-        String email = "";
+        String email = Users.get(row).getEmail();
         DefaultTableModel tableModel = (DefaultTableModel) QueueTable.getModel();
-        for (int i = 0; i < tableModel.getRowCount(); i++) {
-            if (i == row) {
-                status = (String)tableModel.getValueAt(i, 2);
-                email = (String)tableModel.getValueAt(i, 1);
-            }
-        }
-        
+        String status = (String)tableModel.getValueAt(row, 1);        
         JPasswordField text0 = new JPasswordField(8);
-        Object[] msg = {"Password:", text0};
-        
-        int result = JOptionPane.showConfirmDialog(null, msg , "Confirm removal by entering password", JOptionPane.OK_CANCEL_OPTION);
-        boolean flag = false;
+        Object[] msg = {String.format("Confirm unpause by entering password for " + email), text0};
+        int result = JOptionPane.showConfirmDialog(null, msg , "Unpause user?", JOptionPane.OK_CANCEL_OPTION);
         if (result == JOptionPane.OK_OPTION) {
-            for (int i = 0; i < Users.size();i++)
+            boolean val = Helper.encodeStatus(status);
+            if(val)
             {
-                if (Users.get(i).getEmail() == email){
-                    if (Users.get(i).getPassword().toString().equals(new String(text0.getPassword()))){
-                        boolean val = this.encodeStatus(status);
-                        if(val)
-                        {
-                            tableModel.setValueAt(this.decodeStatus(!val), row, 2);
-                            for (int j = 0; j< Users.size(); j++){
-                                if (Users.get(j).getEmail().equals(email)){
-                                    Users.get(j).setStatus();
-                                }
-                            }
-                        }
-                        flag = true;
-                        this.UnpauseButton.setEnabled(false);
-                        this.PauseButton.setEnabled(true);
-                        break;
-                    }
-                }
+                tableModel.setValueAt(Helper.decodeStatus(!val), row, 1);
+                        Users.get(row).setStatus();
             }
+            this.UnpauseButton.setEnabled(false);
+            this.PauseButton.setEnabled(true);
         }
     }//GEN-LAST:event_UnpauseButtonActionPerformed
 
+    // Listener for QueueTable when rows are selected
     private void QueueTableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_QueueTableMouseClicked
         // TODO add your handling code here:
         JTable target = (JTable) evt.getSource();
         int row = target.getSelectedRow();
-        String isPaused = (String)target.getValueAt(row, 2);
+        String isPaused = (String)target.getValueAt(row, 1);
         RemoveButton.setEnabled(true);
-        boolean status = this.encodeStatus(isPaused);
+        boolean status = Helper.encodeStatus(isPaused);
         if (status){
             this.PauseButton.setEnabled(false);
             this.UnpauseButton.setEnabled(true);
@@ -405,6 +378,7 @@ public class Student extends javax.swing.JFrame {
     private javax.swing.JTable QueueTable;
     private javax.swing.JButton RemoveButton;
     private javax.swing.JButton UnpauseButton;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTable jTable1;
