@@ -263,7 +263,7 @@ public class Student extends javax.swing.JFrame {
         Object[] msg = {String.format("Confirm removal by entering password for " + email), text0};
         int result = JOptionPane.showConfirmDialog(null, msg , "Remove User?", JOptionPane.OK_CANCEL_OPTION);
         if (result == JOptionPane.OK_OPTION) {
-                Users.remove(row);
+                //Users.remove(row);
                 this.removeUsersFromQueue(row);
                 this.RemoveButton.setEnabled(false);
                 this.PauseButton.setEnabled(false);
