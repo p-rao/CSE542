@@ -46,10 +46,10 @@ public class Student extends javax.swing.JFrame {
         Random rand = new Random();
         int rand_int1 = rand.nextInt(4);
         if (rand_int1 == 0){
-            this.jLabel1.setVisible(true);
+            this.EmptyQueueMsg.setVisible(true);
         }
         else{
-            this.jLabel1.setVisible(false);
+            this.EmptyQueueMsg.setVisible(false);
         }
         RemoveButton.setEnabled(false);
         PauseButton.setEnabled(false);
@@ -74,29 +74,17 @@ public class Student extends javax.swing.JFrame {
     private void initComponents() {
 
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
         AddButton = new javax.swing.JButton();
         RemoveButton = new javax.swing.JButton();
         PauseButton = new javax.swing.JButton();
         UnpauseButton = new javax.swing.JButton();
         jScrollPane2 = new javax.swing.JScrollPane();
         QueueTable = new javax.swing.JTable();
-        jLabel1 = new javax.swing.JLabel();
-
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
-            },
-            new String [] {
-                "Title 1", "Title 2", "Title 3", "Title 4"
-            }
-        ));
-        jScrollPane1.setViewportView(jTable1);
+        EmptyQueueMsg = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("Appointment Portal");
+        setFocusableWindowState(false);
 
         AddButton.setText("Add");
         AddButton.addActionListener(new java.awt.event.ActionListener() {
@@ -157,7 +145,7 @@ public class Student extends javax.swing.JFrame {
         jScrollPane2.setViewportView(QueueTable);
         QueueTable.getColumnModel().getSelectionModel().setSelectionMode(javax.swing.ListSelectionModel.SINGLE_INTERVAL_SELECTION);
 
-        jLabel1.setText("The queue is currently empty");
+        EmptyQueueMsg.setText("The queue is currently empty");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -167,7 +155,7 @@ public class Student extends javax.swing.JFrame {
                 .addContainerGap(37, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel1)
+                        .addComponent(EmptyQueueMsg)
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 318, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -184,34 +172,34 @@ public class Student extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addContainerGap(37, Short.MAX_VALUE)
                         .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 271, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(72, 72, 72)
+                        .addContainerGap(72, Short.MAX_VALUE)
                         .addComponent(AddButton)
-                        .addGap(40, 40, 40)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 40, Short.MAX_VALUE)
                         .addComponent(RemoveButton)
-                        .addGap(40, 40, 40)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 40, Short.MAX_VALUE)
                         .addComponent(PauseButton)
-                        .addGap(40, 40, 40)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 40, Short.MAX_VALUE)
                         .addComponent(UnpauseButton)
                         .addGap(0, 0, Short.MAX_VALUE)))
-                .addGap(18, 18, 18)
-                .addComponent(jLabel1)
+                .addGap(18, 18, Short.MAX_VALUE)
+                .addComponent(EmptyQueueMsg)
                 .addContainerGap(50, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    // adds values to the table model
+    // Adds values to the table model
     private void addValuesToQueue(NewUser user){
         Users.add(user);
         DefaultTableModel model = (DefaultTableModel) QueueTable.getModel();
         model.addRow(new Object[]{user.getName(), Helper.decodeStatus(user.getStatus())});
     }
     
-    // removes users from the queue while maintaining the positions of the paused entries
+    // Removes users from the queue while maintaining the positions of the paused entries
     private void removeUsersFromQueue(int row){
         DefaultTableModel tableModel = (DefaultTableModel) QueueTable.getModel();
         int rowNumber = tableModel.getRowCount();
@@ -250,8 +238,8 @@ public class Student extends javax.swing.JFrame {
         if ((result == JOptionPane.OK_OPTION) && !(username.equals("")) && !(email.equals(""))) {
             NewUser newuser = new NewUser(username, email, password);
             this.addValuesToQueue(newuser);
+            this.EmptyQueueMsg.setVisible(false);
         }
-        this.jLabel1.setVisible(false);
     }//GEN-LAST:event_AddButtonActionPerformed
 
     // Remove button - allows a user to be removed from the queue
@@ -270,7 +258,7 @@ public class Student extends javax.swing.JFrame {
                 this.UnpauseButton.setEnabled(false);
             }
         if (QueueTable.getRowCount() == 0){
-            this.jLabel1.setVisible(true);
+            this.EmptyQueueMsg.setVisible(true);
         }
     }//GEN-LAST:event_RemoveButtonActionPerformed
 
@@ -282,7 +270,7 @@ public class Student extends javax.swing.JFrame {
         String status = (String)tableModel.getValueAt(row, 1);
         String email = Users.get(row).getEmail();
         JPasswordField text0 = new JPasswordField(8);
-        Object[] msg = {String.format("Confirm removal by entering password for " + email), text0};
+        Object[] msg = {String.format("Confirm pause by entering password for " + email), text0};
         int result = JOptionPane.showConfirmDialog(null, msg , "Pause User?", JOptionPane.OK_CANCEL_OPTION);
         if (result == JOptionPane.OK_OPTION) {
             boolean val = Helper.encodeStatus(status);
@@ -374,13 +362,12 @@ public class Student extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton AddButton;
+    private javax.swing.JLabel EmptyQueueMsg;
     private javax.swing.JButton PauseButton;
     private javax.swing.JTable QueueTable;
     private javax.swing.JButton RemoveButton;
     private javax.swing.JButton UnpauseButton;
-    private javax.swing.JLabel jLabel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JTable jTable1;
     // End of variables declaration//GEN-END:variables
 }
